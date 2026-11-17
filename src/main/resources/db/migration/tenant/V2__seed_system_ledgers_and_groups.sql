@@ -1,0 +1,192 @@
+-- Fin Vane ERP: Seed System Ledgers, Groups & Dynamic Config for Tenant DB
+-- V2__seed_system_ledgers_and_groups.sql
+
+-- 1. Standard Account Groups (76 groups from reference entity)
+INSERT IGNORE INTO `account_groups` (`id`, `name`, `parent_id`, `nature`, `affects_gross_profit`, `cash_flow_category`, `is_system`, `sort_order`) VALUES
+(1, 'Capital Account', NULL, 'equity', 0, 'financing', 1, 10),
+(2, 'Loans (Liability)', NULL, 'liability', 0, 'financing', 1, 20),
+(3, 'Current Liabilities', NULL, 'liability', 0, 'operating', 1, 30),
+(4, 'Fixed Assets', NULL, 'asset', 0, 'investing', 1, 40),
+(5, 'Investments', NULL, 'asset', 0, 'investing', 1, 50),
+(6, 'Current Assets', NULL, 'asset', 0, 'operating', 1, 60),
+(7, 'Branch / Divisions', NULL, 'asset', 0, 'operating', 1, 70),
+(8, 'Misc. Expenses (Asset)', NULL, 'asset', 0, 'operating', 1, 80),
+(9, 'Suspense A/c', NULL, 'asset', 0, 'operating', 1, 90),
+(10, 'Sales Accounts', NULL, 'income', 1, 'operating', 1, 100),
+(11, 'Purchase Accounts', NULL, 'expense', 1, 'operating', 1, 110),
+(12, 'Direct Incomes', NULL, 'income', 1, 'operating', 1, 120),
+(13, 'Indirect Incomes', NULL, 'income', 0, 'operating', 1, 130),
+(14, 'Direct Expenses', NULL, 'expense', 1, 'operating', 1, 140),
+(15, 'Indirect Expenses', NULL, 'expense', 0, 'operating', 1, 150),
+(16, 'Reserves & Surplus', 1, 'equity', 0, 'financing', 1, 11),
+(17, 'Profit & Loss Account', 1, 'equity', 0, 'financing', 1, 12),
+(18, 'Secured Loans', 2, 'liability', 0, 'financing', 1, 21),
+(19, 'Unsecured Loans', 2, 'liability', 0, 'financing', 1, 22),
+(20, 'Bank OD A/c', 2, 'liability', 0, 'financing', 1, 23),
+(21, 'Sundry Creditors', 3, 'liability', 0, 'operating', 1, 31),
+(22, 'Duties & Taxes', 3, 'liability', 0, 'operating', 1, 32),
+(23, 'Provisions', 3, 'liability', 0, 'operating', 1, 33),
+(24, 'Bank Accounts', 6, 'asset', 0, 'cash_equivalent', 1, 61),
+(25, 'Cash-in-Hand', 6, 'asset', 0, 'cash_equivalent', 1, 62),
+(26, 'Deposits (Asset)', 6, 'asset', 0, 'operating', 1, 63),
+(27, 'Loans & Advances (Asset)', 6, 'asset', 0, 'operating', 1, 64),
+(28, 'Stock-in-Hand', 6, 'asset', 0, 'operating', 1, 65),
+(29, 'Sundry Debtors', 6, 'asset', 0, 'operating', 1, 66),
+(30, 'Input Tax Credit', 6, 'asset', 0, 'operating', 1, 67),
+(31, 'Share Capital', 1, 'equity', 0, 'financing', 1, 201),
+(32, 'Partners'' / Proprietor''s Capital', 1, 'equity', 0, 'financing', 1, 202),
+(33, 'Drawings', 1, 'equity', 0, 'financing', 1, 203),
+(34, 'Securities Premium', 1, 'equity', 0, 'financing', 1, 204),
+(35, 'Term Loans', 2, 'liability', 0, 'financing', 1, 205),
+(36, 'Vehicle / Equipment Loans', 2, 'liability', 0, 'financing', 1, 206),
+(37, 'Loans from Directors / Partners', 2, 'liability', 0, 'financing', 1, 207),
+(38, 'Advances from Customers', 3, 'liability', 0, 'operating', 1, 208),
+(39, 'Outstanding Expenses', 3, 'liability', 0, 'operating', 1, 209),
+(40, 'Other Current Liabilities', 3, 'liability', 0, 'operating', 1, 210),
+(41, 'Land & Buildings', 4, 'asset', 0, 'investing', 1, 211),
+(42, 'Plant & Machinery', 4, 'asset', 0, 'investing', 1, 212),
+(43, 'Furniture & Fixtures', 4, 'asset', 0, 'investing', 1, 213),
+(44, 'Vehicles', 4, 'asset', 0, 'investing', 1, 214),
+(45, 'Office Equipment', 4, 'asset', 0, 'investing', 1, 215),
+(46, 'Computers & IT Equipment', 4, 'asset', 0, 'investing', 1, 216),
+(47, 'Intangible Assets', 4, 'asset', 0, 'investing', 1, 217),
+(48, 'Capital Work-in-Progress', 4, 'asset', 0, 'investing', 1, 218),
+(49, 'Accumulated Depreciation', 4, 'asset', 0, 'investing', 1, 219),
+(50, 'Equity Investments', 5, 'asset', 0, 'investing', 1, 220),
+(51, 'Mutual Funds & Bonds', 5, 'asset', 0, 'investing', 1, 221),
+(52, 'Prepaid Expenses', 6, 'asset', 0, 'operating', 1, 222),
+(53, 'Advances to Suppliers', 6, 'asset', 0, 'operating', 1, 223),
+(54, 'Staff Advances', 6, 'asset', 0, 'operating', 1, 224),
+(55, 'TDS / TCS Receivable', 6, 'asset', 0, 'operating', 1, 225),
+(56, 'Unbilled Revenue / Contract Assets', 6, 'asset', 0, 'operating', 1, 226),
+(57, 'Other Current Assets', 6, 'asset', 0, 'operating', 1, 227),
+(58, 'Domestic Sales', 10, 'income', 1, 'operating', 1, 228),
+(59, 'Export Sales', 10, 'income', 1, 'operating', 1, 229),
+(60, 'Service Revenue', 10, 'income', 1, 'operating', 1, 230),
+(61, 'Raw Material Purchases', 11, 'expense', 1, 'operating', 1, 231),
+(62, 'Stock-in-Trade Purchases', 11, 'expense', 1, 'operating', 1, 232),
+(63, 'Direct Labour', 14, 'expense', 1, 'operating', 1, 233),
+(64, 'Manufacturing Expenses', 14, 'expense', 1, 'operating', 1, 234),
+(65, 'Freight & Carriage Inward', 14, 'expense', 1, 'operating', 1, 235),
+(66, 'Sub-contractor / Project Costs', 14, 'expense', 1, 'operating', 1, 236),
+(67, 'Interest Income', 13, 'income', 0, 'operating', 1, 237),
+(68, 'Other Non-operating Income', 13, 'income', 0, 'operating', 1, 238),
+(69, 'Employee Benefit Expenses', 15, 'expense', 0, 'operating', 1, 239),
+(70, 'Finance Costs', 15, 'expense', 0, 'operating', 1, 240),
+(71, 'Depreciation & Amortisation', 15, 'expense', 0, 'operating', 1, 241),
+(72, 'Selling & Distribution Expenses', 15, 'expense', 0, 'operating', 1, 242),
+(73, 'Administrative Expenses', 15, 'expense', 0, 'operating', 1, 243),
+(74, 'Repairs & Maintenance', 15, 'expense', 0, 'operating', 1, 244),
+(75, 'Professional & Legal Fees', 15, 'expense', 0, 'operating', 1, 245),
+(76, 'Rent, Rates & Insurance', 15, 'expense', 0, 'operating', 1, 246);
+
+-- 2. Standard System Ledgers (Protected, is_system = 1)
+INSERT INTO `accounts` (`code`, `name`, `type`, `group_id`, `opening_balance`, `is_active`) VALUES
+('1000', 'Cash in Hand', 'asset', 25, 0.00, 1),
+('1100', 'Bank Account - HDFC', 'asset', 24, 0.00, 1),
+('1200', 'Accounts Receivable', 'asset', 29, 0.00, 1),
+('1300', 'Inventory', 'asset', 28, 0.00, 1),
+('1400', 'Input CGST', 'asset', 30, 0.00, 1),
+('1401', 'Input SGST', 'asset', 30, 0.00, 1),
+('1402', 'Input IGST', 'asset', 30, 0.00, 1),
+('2100', 'Accounts Payable', 'liability', 21, 0.00, 1),
+('2200', 'Output CGST Payable', 'liability', 22, 0.00, 1),
+('2201', 'Output SGST Payable', 'liability', 22, 0.00, 1),
+('2202', 'Output IGST Payable', 'liability', 22, 0.00, 1),
+('2300', 'PF Payable', 'liability', 23, 0.00, 1),
+('2301', 'TDS Payable', 'liability', 22, 0.00, 1),
+('2302', 'Salary Payable', 'liability', 23, 0.00, 1),
+('3900', 'Profit and Loss Account', 'equity', 17, 0.00, 1),
+('4000', 'Sales Revenue', 'income', 10, 0.00, 1),
+('5000', 'Purchases', 'expense', 11, 0.00, 1),
+('5100', 'Salary Expense', 'expense', 15, 0.00, 1);
+
+-- 3. Standard Lookups
+INSERT INTO `config_lookups` (`category`, `code`, `label`, `sort_order`, `is_active`, `is_system`) VALUES
+('uom', 'PCS', 'Pieces (PCS)', 10, 1, 1),
+('uom', 'NOS', 'Numbers (NOS)', 20, 1, 1),
+('uom', 'KGS', 'Kilograms (KGS)', 30, 1, 1),
+('uom', 'MTR', 'Meters (MTR)', 40, 1, 1),
+('uom', 'BOX', 'Boxes (BOX)', 50, 1, 1),
+('uom', 'SET', 'Sets (SET)', 60, 1, 1),
+('uom', 'LTR', 'Litres (LTR)', 70, 1, 1),
+('uom', 'PKT', 'Packets (PKT)', 80, 1, 1),
+('uom', 'DOZ', 'Dozens (DOZ)', 90, 1, 1),
+('uom', 'QNT', 'Quintals (QNT)', 100, 1, 1),
+('uom', 'TON', 'Tonnes (TON)', 110, 1, 1),
+
+('party_type', 'customer', 'Customer', 10, 1, 1),
+('party_type', 'vendor', 'Vendor', 20, 1, 1),
+('party_type', 'both', 'Both (Customer & Vendor)', 30, 1, 1),
+
+('voucher_type', 'receipt', 'Receipt Voucher', 10, 1, 1),
+('voucher_type', 'payment', 'Payment Voucher', 20, 1, 1),
+('voucher_type', 'journal', 'Journal Voucher', 30, 1, 1),
+('voucher_type', 'contra', 'Contra Voucher', 40, 1, 1),
+
+('invoice_type', 'tax_invoice', 'Tax Invoice', 10, 1, 1),
+('invoice_type', 'bill_of_supply', 'Bill of Supply', 20, 1, 1),
+('invoice_type', 'export_invoice', 'Export Invoice', 30, 1, 1),
+
+('payment_term', 'Immediate', 'Due on Receipt (Immediate)', 10, 1, 0),
+('payment_term', 'Net 15', 'Net 15 Days', 20, 1, 0),
+('payment_term', 'Net 30', 'Net 30 Days', 30, 1, 0),
+('payment_term', 'Net 45', 'Net 45 Days', 40, 1, 0),
+('payment_term', 'Net 60', 'Net 60 Days', 50, 1, 0);
+
+-- 4. GST Rates
+INSERT INTO `config_gst_rates` (`rate_pct`, `label`, `is_active`) VALUES
+(0.00, '0% (Nil Rated / Exempt)', 1),
+(5.00, '5% GST', 1),
+(12.00, '12% GST', 1),
+(18.00, '18% GST (Standard)', 1),
+(28.00, '28% GST (High / Luxury)', 1);
+
+-- 5. TDS Sections
+INSERT INTO `config_tds_sections` (`section_code`, `description`, `rate_individual`, `rate_company`, `threshold_amount`, `is_active`) VALUES
+('194C', 'Payment to Contractors / Subcontractors', 1.00, 2.00, 100000.00, 1),
+('194J', 'Fees for Professional or Technical Services', 2.00, 10.00, 30000.00, 1),
+('194I_LAND', 'Rent for Land, Building or Furniture', 10.00, 10.00, 240000.00, 1),
+('194I_PLANT', 'Rent for Plant and Machinery', 2.00, 2.00, 240000.00, 1),
+('194H', 'Commission or Brokerage', 5.00, 5.00, 15000.00, 1),
+('194Q', 'Purchase of Goods in excess of 50 Lakhs', 0.10, 0.10, 5000000.00, 1);
+
+-- 6. Voucher & Document Numbering Series
+INSERT INTO `config_voucher_series` (`doc_type`, `prefix`, `suffix`, `next_number`, `zero_pad_length`, `fy_based`) VALUES
+('sales_invoice', 'INV-', NULL, 1, 4, 1),
+('purchase_bill', 'BILL-', NULL, 1, 4, 1),
+('receipt_voucher', 'REC-', NULL, 1, 4, 0),
+('payment_voucher', 'PAY-', NULL, 1, 4, 0),
+('journal_voucher', 'JV-', NULL, 1, 4, 0),
+('contra_voucher', 'CON-', NULL, 1, 4, 0),
+('credit_note', 'CN-', NULL, 1, 4, 1),
+('debit_note', 'DN-', NULL, 1, 4, 1),
+('sales_order', 'SO-', NULL, 1, 4, 1),
+('purchase_order', 'PO-', NULL, 1, 4, 1),
+('quotation', 'QT-', NULL, 1, 4, 1),
+('stock_transfer', 'ST-', NULL, 1, 5, 0),
+('production_order', 'MFG-', NULL, 1, 4, 0),
+('service_sku', 'SVC-', NULL, 1, 4, 0);
+
+-- 7. Services Enablement & Default Periods
+INSERT INTO `config_services` (`service_key`, `service_group`, `label`, `hint`, `is_active`) VALUES
+('financials', 'Statutory', 'Financials', 'Statutory financial statements (Schedule III / sector view)', 1),
+('gst', 'Statutory', 'GST', 'GSTR-1, GSTR-3B and GSTR-2A/2B reconciliation', 1),
+('tds', 'Statutory', 'TDS', 'TDS register from the TDS ledgers', 1),
+('epf', 'Statutory', 'EPF / PF report', 'EPF deduction in payroll, EPF report and ECR file', 1),
+('esi', 'Statutory', 'ESI', 'ESI deduction in payroll, ESI report and ESIC upload file', 1),
+('budget', 'Budget', 'Budget', 'Plan Budget, Budget vs Actual and the dashboard Budget tab', 1),
+('financial_modelling', 'Corporate Finance', 'Financial Modelling', 'Projections built from the books', 1),
+('valuation', 'Corporate Finance', 'Valuation report', 'DCF and multiples valuation', 1),
+('cma', 'Corporate Finance', 'CMA report', 'Credit Monitoring Arrangement data for banks', 1);
+
+INSERT INTO `config_service_periods` (`service_key`, `is_enabled`, `period_from`, `period_to`) VALUES
+('financials', 1, NULL, NULL),
+('gst', 1, NULL, NULL),
+('tds', 1, NULL, NULL),
+('epf', 1, NULL, NULL),
+('esi', 1, NULL, NULL),
+('budget', 1, NULL, NULL),
+('financial_modelling', 1, NULL, NULL),
+('valuation', 1, NULL, NULL),
+('cma', 1, NULL, NULL);

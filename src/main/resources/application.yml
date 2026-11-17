@@ -1,0 +1,82 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: finvane-backend
+  profiles:
+    active: dev
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_CONTROL_NAME:finvane_control}?createDatabaseIfNotExist=true&useSSL=${DB_SSL:false}&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata&sessionVariables=sql_mode='STRICT_TRANS_TABLES,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO'}
+    username: ${DB_USER:root}
+    password: ${DB_PASS:root_secret_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: FinVaneControlPool
+      maximum-pool-size: 10
+      minimum-idle: 3
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-timeout: 20000
+
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USER:}
+    password: ${SMTP_PASS:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 50MB
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:finvane_jwt_secret_key_2026_super_secure_enterprise_key_min_256_bits!}
+    expiration-ms: 86400000 # 24 hours
+  multitenancy:
+    tenant-prefix: fv_
+    control-db: ${DB_CONTROL_NAME:finvane_control}
+  rate-limit:
+    login-limit: 5
+    login-window-seconds: 900 # 15 minutes
+    general-limit: 120
+    general-window-seconds: 60
+  security:
+    bcrypt-cost: 12
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  file:
+    name: logs/finvane-api.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %msg%n"
+  level:
+    root: INFO
+    com.finvane: INFO
+    com.finvane.config.ApiLoggingFilter: INFO
+
+
