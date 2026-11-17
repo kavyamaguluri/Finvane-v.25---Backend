@@ -96,6 +96,33 @@ public class DataSourceConfig {
                 // Run Control V2 Dynamic Config Seeds
                 String v2 = loadResourceSql("/db/migration/control/V2__seed_dynamic_config.sql");
                 executeSqlScript(stmt, v2);
+
+                // Run Tenant V1 Schema (parties, items, accounts, vouchers, etc.)
+                String tv1 = loadResourceSql("/db/migration/tenant/V1__init_tenant_schema.sql");
+                executeSqlScript(stmt, tv1);
+
+                // Run Tenant V2 Seeds
+                String tv2 = loadResourceSql("/db/migration/tenant/V2__seed_system_ledgers_and_groups.sql");
+                executeSqlScript(stmt, tv2);
+
+                // Ensure parties table has required columns for multi-tenancy & ERP operations
+                String[] partyPatches = {
+                    "ALTER TABLE parties ADD COLUMN tenant_id VARCHAR(64) NOT NULL DEFAULT '1'",
+                    "ALTER TABLE parties ADD COLUMN trade_name VARCHAR(255) NULL",
+                    "ALTER TABLE parties ADD COLUMN pan VARCHAR(50) NULL",
+                    "ALTER TABLE parties ADD COLUMN opening_balance DECIMAL(18,2) NOT NULL DEFAULT 0.00",
+                    "ALTER TABLE parties ADD COLUMN current_balance DECIMAL(18,2) NOT NULL DEFAULT 0.00",
+                    "ALTER TABLE accounts ADD COLUMN tenant_id VARCHAR(64) NOT NULL DEFAULT '1'",
+                    "ALTER TABLE items ADD COLUMN tenant_id VARCHAR(64) NOT NULL DEFAULT '1'",
+                    "ALTER TABLE vouchers ADD COLUMN tenant_id VARCHAR(64) NOT NULL DEFAULT '1'"
+                };
+                for (String patch : partyPatches) {
+                    try {
+                        stmt.execute(patch);
+                    } catch (Exception ignored) {
+                        // Column already exists
+                    }
+                }
             } catch (Exception e) {
                 // Log notice if already initialized
                 System.err.println("Control DB init notice: " + e.getMessage());

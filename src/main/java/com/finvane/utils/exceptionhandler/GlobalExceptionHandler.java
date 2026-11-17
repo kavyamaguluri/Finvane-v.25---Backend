@@ -47,9 +47,20 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
+    @ExceptionHandler(org.springframework.dao.DataAccessException.class)
+    public ResponseEntity<Map<String, Object>> handleDataAccessException(org.springframework.dao.DataAccessException ex) {
+        System.err.println("Database operation error: " + ex.getMessage());
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "A database error occurred while processing your request. Please try again.");
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex) {
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage() != null ? ex.getMessage() : "Internal server error");
+        System.err.println("Internal server error: " + ex.getMessage());
+        String msg = ex.getMessage();
+        if (msg != null && (msg.toLowerCase().contains("sql") || msg.toLowerCase().contains("statement") || msg.toLowerCase().contains("table") || msg.toLowerCase().contains("column"))) {
+            msg = "An internal server error occurred. Please try again.";
+        }
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg != null ? msg : "Internal server error");
     }
 
     private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpStatus status, String message) {
