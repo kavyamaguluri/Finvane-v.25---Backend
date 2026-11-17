@@ -21,6 +21,9 @@ import java.util.stream.Collectors;
 @Configuration
 public class DataSourceConfig {
 
+    @Value("${SPRING_DATASOURCE_URL:}")
+    private String springDatasourceUrl;
+
     @Value("${DB_HOST:localhost}")
     private String dbHost;
 
@@ -33,13 +36,21 @@ public class DataSourceConfig {
     @Value("${DB_PASS:root_secret_password}")
     private String dbPassword;
 
-    @Value("${app.multitenancy.control-db:finvane_control}")
+    @Value("${DB_SSL:false}")
+    private String dbSsl;
+
+    @Value("${app.multitenancy.control-db:${DB_CONTROL_NAME:finvane_control}}")
     private String controlDbName;
 
     @Bean(name = "controlDataSource")
     public DataSource controlDataSource() {
-        String jdbcUrl = String.format("jdbc:mysql://%s:%d/%s?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata&sessionVariables=sql_mode='STRICT_TRANS_TABLES,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO'",
-                dbHost, dbPort, controlDbName);
+        String jdbcUrl;
+        if (springDatasourceUrl != null && !springDatasourceUrl.trim().isEmpty()) {
+            jdbcUrl = springDatasourceUrl.trim();
+        } else {
+            jdbcUrl = String.format("jdbc:mysql://%s:%d/%s?createDatabaseIfNotExist=true&useSSL=%s&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata&sessionVariables=sql_mode='STRICT_TRANS_TABLES,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO'",
+                    dbHost, dbPort, controlDbName, dbSsl);
+        }
 
         HikariConfig config = new HikariConfig();
         config.setPoolName("HikariPool-Control");
