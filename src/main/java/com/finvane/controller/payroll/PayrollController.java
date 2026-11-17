@@ -118,6 +118,22 @@ public class PayrollController {
         return ApiResponse.ok("Employee deleted", null);
     }
 
+    @DeleteMapping("/employees")
+    @Transactional
+    public ApiResponse<Void> deleteAllEmployees() {
+        String tenantId = TenantContext.getTenantId();
+        if (tenantId == null || tenantId.isBlank() || "control".equalsIgnoreCase(tenantId)) {
+            tenantId = "1";
+        }
+        List<EmployeeEntity> list = employeeDao.findByTenantIdOrderByNameAsc(tenantId);
+        for (EmployeeEntity emp : list) {
+            try {
+                employeeDao.delete(emp);
+            } catch (Exception ignored) {}
+        }
+        return ApiResponse.ok("All employees deleted", null);
+    }
+
     // --- PAYROLL RUNS ---
 
     @GetMapping("/runs")
