@@ -121,16 +121,38 @@ public class TenantSettingsService {
         return LocalDate.now(ZoneId.of("Asia/Kolkata"));
     }
 
+    public Map<String, String> getAllSettings(String tenantId) {
+        String tid = normalizeTenantId(tenantId);
+        Map<String, String> map = new HashMap<>();
+        try {
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(
+                "SELECT setting_key, setting_value FROM app_settings WHERE tenant_id = ?",
+                tid
+            );
+            for (Map<String, Object> r : rows) {
+                String k = (String) r.get("setting_key");
+                String v = (String) r.get("setting_value");
+                if (k != null) map.put(k, v != null ? v : "");
+            }
+        } catch (Exception ignored) {}
+        return map;
+    }
+
     public List<Map<String, Object>> getServiceDetails(String tenantId) {
+        Map<String, String> settings = getAllSettings(tenantId);
+        return getServiceDetailsFromSettings(settings);
+    }
+
+    private List<Map<String, Object>> getServiceDetailsFromSettings(Map<String, String> settings) {
         LocalDate today = todayIst();
         String todayStr = today.toString();
         List<Map<String, Object>> list = new ArrayList<>();
 
         for (ServiceDefinition s : SERVICES) {
-            String rawOn = getSetting(tenantId, "svc_" + s.key(), "1").trim();
+            String rawOn = settings.getOrDefault("svc_" + s.key(), "1").trim();
             boolean on = !"0".equals(rawOn) && !"false".equalsIgnoreCase(rawOn);
-            String from = getSetting(tenantId, "svc_" + s.key() + "_from", "").trim();
-            String to = getSetting(tenantId, "svc_" + s.key() + "_to", "").trim();
+            String from = settings.getOrDefault("svc_" + s.key() + "_from", "").trim();
+            String to = settings.getOrDefault("svc_" + s.key() + "_to", "").trim();
 
             String status = "off";
             if (on) {
@@ -165,8 +187,13 @@ public class TenantSettingsService {
     }
 
     public Map<String, Boolean> getActiveServices(String tenantId) {
+        Map<String, String> settings = getAllSettings(tenantId);
+        return getActiveServicesFromSettings(settings);
+    }
+
+    private Map<String, Boolean> getActiveServicesFromSettings(Map<String, String> settings) {
         Map<String, Boolean> out = new LinkedHashMap<>();
-        for (Map<String, Object> detail : getServiceDetails(tenantId)) {
+        for (Map<String, Object> detail : getServiceDetailsFromSettings(settings)) {
             out.put((String) detail.get("key"), "active".equals(detail.get("status")));
         }
         boolean corpActive = CORPORATE_KEYS.stream().anyMatch(k -> Boolean.TRUE.equals(out.get(k)));
@@ -243,12 +270,37 @@ public class TenantSettingsService {
     }
 
     public Map<String, Object> getContextFlags(String tenantId) {
+        String tid = normalizeTenantId(tenantId);
+        Map<String, String> settings = getAllSettings(tid);
+
+        List<Map<String, Object>> details = getServiceDetailsFromSettings(settings);
+        Map<String, Boolean> activeServices = getActiveServicesFromSettings(settings);
+
+        boolean gstReg = true;
+        boolean mfg = false;
+        try {
+            List<Map<String, Object>> entityRows = jdbcTemplate.queryForList(
+                "SELECT gst_registered, sector FROM entities WHERE id = ? LIMIT 1",
+                tid
+            );
+            if (!entityRows.isEmpty()) {
+                gstReg = parseBooleanFlag(entityRows.get(0).get("gst_registered"), true);
+                Object sectorObj = entityRows.get(0).get("sector");
+                if (sectorObj != null) {
+                    mfg = String.valueOf(sectorObj).toLowerCase(Locale.ROOT).contains("manufactur");
+                }
+            }
+        } catch (Exception ignored) {}
+
+        String rawInv = settings.getOrDefault("inventory_enabled", "1").trim();
+        boolean inv = !"0".equals(rawInv) && !"false".equalsIgnoreCase(rawInv);
+
         Map<String, Object> flags = new LinkedHashMap<>();
-        flags.put("services", getActiveServices(tenantId));
-        flags.put("details", getServiceDetails(tenantId));
-        flags.put("inventoryEnabled", isInventoryEnabled(tenantId));
-        flags.put("gstRegistered", isGstRegistered(tenantId));
-        flags.put("manufacturingEnabled", isManufacturingEnabled(tenantId));
+        flags.put("services", activeServices);
+        flags.put("details", details);
+        flags.put("inventoryEnabled", inv);
+        flags.put("gstRegistered", gstReg);
+        flags.put("manufacturingEnabled", mfg);
         return flags;
     }
 
